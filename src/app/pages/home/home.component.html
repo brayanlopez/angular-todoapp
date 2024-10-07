@@ -13,11 +13,13 @@
       />
     </div>
   </header>
-  <div class="container todoapp-wrapper" *ngIf="tasks().length > 0">
+
+  @if (tasks().length > 0) {
+  <div class="container todoapp-wrapper">
     <section class="main">
       <ul class="todo-list">
+        @for (task of tasksByFilter(); track task.id; let i = $index) {
         <li
-          *ngFor="let task of tasksByFilter(); index as i"
           (dblclick)="updateTaskEditingMode(i)"
           [class.completed]="task.completed"
           [class.editing]="task.editing"
@@ -38,6 +40,7 @@
             (keydown.enter)="updateTaskText(i, $event)"
           />
         </li>
+        }
         <!-- <li class="completed">
           <div class="view">
             <input class="toggle" type="checkbox" checked />
@@ -67,10 +70,11 @@
     <footer class="footer">
       <span class="todo-count">
         <strong>{{ tasksByFilter().length }} </strong>
-        <span [ngSwitch]="tasksByFilter()">
-          <span *ngSwitchCase="1">item</span>
-          <span *ngSwitchDefault>items</span>
-        </span>
+        @switch (tasksByFilter().length) { @case (1) {
+        <span>item</span>
+        } @default {
+        <span>items</span>
+        } }
       </span>
       <!-- Remove this if you don't implement routing -->
       <!-- TODO: check routing issue and implement this using an iteration over an array-->
@@ -100,9 +104,10 @@
           >
         </li>
       </ul>
-      <button class="clear-completed" *ngIf="amountTaskCompleted() > 0">
-        Clear completed
-      </button>
+      @if (amountTaskCompleted() > 0) {
+      <button class="clear-completed">Clear completed</button>
+      }
     </footer>
   </div>
+  }
 </section>
