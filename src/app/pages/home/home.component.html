@@ -18,7 +18,7 @@
     <section class="main">
       <ul class="todo-list">
         <li
-          *ngFor="let task of tasks(); index as i"
+          *ngFor="let task of tasksByFilter(); index as i"
           (dblclick)="updateTaskEditingMode(i)"
           [class.completed]="task.completed"
           [class.editing]="task.editing"
@@ -69,20 +69,36 @@
     <footer class="footer">
       <!-- This should be `0 items left` by default -->
       <span class="todo-count">
-        <strong>{{ tasks().length }} </strong>
-        <span *ngIf="tasks().length === 1; else elseBlock">item</span>
+        <strong>{{ tasksByFilter().length }} </strong>
+        <span *ngIf="tasksByFilter().length === 1; else elseBlock">item</span>
         <ng-template #elseBlock>items</ng-template>
       </span>
       <!-- Remove this if you don't implement routing -->
+      <!-- TODO: check routing issue and implement this using an iteration over an array-->
       <ul class="filters">
         <li>
-          <a routerLink="/" class="selected">All</a>
+          <a
+            routerLink="/"
+            [class.selected]="filter() === 'All'"
+            (click)="changeFilter(filters.All)"
+            >All</a
+          >
         </li>
         <li>
-          <a routerLink="/pending">Pending</a>
+          <a
+            routerLink="/pending"
+            [class.selected]="filter() === 'Pending'"
+            (click)="changeFilter(filters.Pending)"
+            >Pending</a
+          >
         </li>
         <li>
-          <a routerLink="/completed">Completed</a>
+          <a
+            routerLink="/completed"
+            [class.selected]="filter() === 'Completed'"
+            (click)="changeFilter(filters.Completed)"
+            >Completed</a
+          >
         </li>
       </ul>
       <!-- Hidden if no completed items are left ↓ -->

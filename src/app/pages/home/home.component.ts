@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { Task } from '../../models/task.model';
+import { Filter } from '../../models/enums';
+import { DummyData } from '../../models/dummy-data';
 
 @Component({
   selector: 'app-home',
@@ -11,10 +14,24 @@ import { Task } from '../../models/task.model';
   styleUrl: './home.component.css',
 })
 export class HomeComponent {
-  tasks = signal<Task[]>([
-    { id: 1, title: 'hi', completed: false },
-    { id: 1, title: 'hi', completed: false },
-  ]);
+  tasks = signal<Task[]>(DummyData);
+
+  filter = signal<Filter>(Filter.All);
+
+  filters = Filter;
+
+  tasksByFilter = computed(() => {
+    const filter = this.filter();
+    const tasks = this.tasks();
+
+    const filterMap: Record<Filter, () => Task[]> = {
+      [Filter.Completed]: () => tasks.filter((task) => task.completed),
+      [Filter.Pending]: () => tasks.filter((task) => !task.completed),
+      [Filter.All]: () => tasks,
+    };
+
+    return filterMap[filter]();
+  });
 
   newTaskCtrl = new FormControl('', {
     nonNullable: true,
@@ -34,7 +51,7 @@ export class HomeComponent {
     this.tasks.update((tasks) => [...tasks, newTasks]);
   }
 
-  deleteTask(index: Number) {
+  deleteTask(index: Number): void {
     this.tasks.update((tasks) =>
       tasks.filter((task, position) => position !== index)
     );
@@ -58,7 +75,7 @@ export class HomeComponent {
     });
   }
 
-  updateTaskText(index: Number, event: Event) {
+  updateTaskText(index: Number, event: Event): void {
     const input = event.target as HTMLInputElement;
     this.tasks.update((tasks) => {
       return tasks.map((task, position) =>
@@ -67,5 +84,9 @@ export class HomeComponent {
           : task
       );
     });
+  }
+
+  changeFilter(filter: Filter): void {
+    this.filter.set(filter);
   }
 }
