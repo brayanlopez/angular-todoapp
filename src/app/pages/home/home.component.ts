@@ -1,10 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  Injector,
+  signal,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Task } from '../../models/task.model';
 import { Filter } from '../../models/enums';
-import { DummyData } from '../../models/dummy-data';
 
 @Component({
   selector: 'app-home',
@@ -14,7 +20,7 @@ import { DummyData } from '../../models/dummy-data';
   styleUrl: './home.component.css',
 })
 export class HomeComponent {
-  tasks = signal<Task[]>(DummyData);
+  tasks = signal<Task[]>([]);
 
   filter = signal<Filter>(Filter.All);
 
@@ -33,10 +39,35 @@ export class HomeComponent {
     return filterMap[filter]();
   });
 
+  amountTaskCompleted = computed(
+    () => this.tasks().filter((task) => task.completed).length
+  );
+
   newTaskCtrl = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required],
   });
+
+  injector = inject(Injector);
+
+  trackTask() {
+    effect(
+      () => {
+        const tasks = this.tasks();
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      },
+      { injector: this.injector }
+    );
+  }
+
+  ngOnInit() {
+    const storage = localStorage.getItem('tasks');
+    if (storage) {
+      const tasks = JSON.parse(storage);
+      this.tasks.set(tasks);
+    }
+    this.trackTask();
+  }
 
   changeHandler(): void {
     const value = this.newTaskCtrl.value.trim();
