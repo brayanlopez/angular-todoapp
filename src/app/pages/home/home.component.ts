@@ -1,5 +1,5 @@
-
 import {
+  afterNextRender,
   Component,
   computed,
   effect,
@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { Task } from '../../models/task.model';
 import { Filter } from '../../models/enums';
+import { Task } from '../../models/task.model';
 
 @Component({
   selector: 'app-home',
@@ -60,13 +60,15 @@ export class HomeComponent {
     );
   }
 
-  ngOnInit() {
-    const storage = localStorage.getItem('tasks');
-    if (storage) {
-      const tasks = JSON.parse(storage);
-      this.tasks.set(tasks);
-    }
-    this.trackTask();
+  constructor() {
+    afterNextRender(() => {
+      const storage = localStorage.getItem('tasks');
+      if (storage) {
+        const tasks = JSON.parse(storage);
+        this.tasks.set(tasks);
+      }
+      this.trackTask();
+    });
   }
 
   changeHandler(): void {
