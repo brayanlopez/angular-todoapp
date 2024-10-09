@@ -94,6 +94,20 @@
   border-radius: 8px;
 }
 
+.input-container {
+  display: flex;
+  gap: 10px;
+}
+
+.input-container button {
+  border-radius: 10%;
+}
+
+.input-container button:hover {
+  cursor: pointer;
+  background-color: #a58efb;
+}
+
 .main {
   position: relative;
   z-index: 2;
